@@ -38,60 +38,54 @@ const POST_MESSAGE = gql`
   }
 `;
 
-
-
-
-
+const Messages = ({ user }) => {
+  const { data } = useSubscription(GET_MESSAGES);
+  if (!data) {
+    return null;
+  }
+  return (
+    <div style={{ marginBottom: "5rem" }}>
+      {data.messages.map(({ id, user: messageUser, text }) => {
+        return (
+          <div
+            key={id}
+            style={{ textAlign: user === messageUser ? "right" : "left" }}
+          >
+            <p style={{ marginBottom: "0.3rem" }}>{messageUser}</p>
+            <Chip
+              style={{ fontSize: "0.9rem" }}
+              color={user === messageUser ? "primary" : "secondary"}
+              label={text}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 export const Chat = () => {
-  const [user, setUser] = useState("Username"); //initialize user
-  const [text, setText] = useState(""); //initialize text
+  const [user, setUser] = useState("Victoria");
+  const [text, setText] = useState("");
   const [postMessage] = useMutation(POST_MESSAGE);
-
   const sendMessage = () => {
-
     if (text.length > 0 && user.length > 0) {
       postMessage({
-        variables: { user: user, text: text },
+        variables: {
+          user: user,
+          text: text,
+        },
       });
-      setText(""); //reset text field
+      setText("");
     } else {
-     
       alert("Missing fields!");
     }
   };
 
-  const Messages = ({ user }) => {
-    const { data } = useSubscription(GET_MESSAGES); //executes query
-    if (!data) {
-      return null; //if no data fetched, return null
-    }
-
-    
-   
-    //else return the fetched data
-    return (
-      <div style={{ marginBottom: "5rem" }}>
-        {data.messages.map(({ id, user, text }) => {
-          return (
-            <div key={id} style={{ textAlign: "right" }}>
-              <p style={{ marginBottom: "0.3rem" }}>{user}</p>
-              <Chip
-                style={{ fontSize: "0.9rem" }}
-                color="primary"
-                label={text}
-              />
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
     <Container>
-      <h3>Welcome to React Chat App, built on GraphQL 🛢📳</h3>
-      <Messages />
+      <h3>Welcome to DevThoughts! A simple chat app for the GraphQL series!</h3>
+      <Messages user={user} />
       <Grid container spacing={2}>
         <Grid item xs={3}>
           <TextField
